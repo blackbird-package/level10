@@ -66,34 +66,40 @@ cryptsetup luksOpen /dev/nvme0n1p4 data
 
 ### logical volume data
 
-#### data pods
+
 ```
-lvcreate -L 20G  data -n pods
-```
-```
-mkfs.btrfs /dev/data/pods
+export DISK_BOOOT="/dev/nvme0n1p1"
 ```
 ```
-mkdir -p /mnt/var/lib /mnt/var/lib/containers
+git clone https://github.com/blackbird-package/mobconf.git
 ```
 ```
-mount -o rw,nodev,noexec,nosuid,relatime /dev/data/pods /mnt/var/lib/containers
-```
-#### data home
-```
-lvcreate -l100%FREE  data -n home
-```
-```
-mkfs.ext4 -b 4096 /dev/data/home
-```
-```
-mkdir /mnt/home
-```
-```
-mount -o rw,nodev,noexec,nosuid,relatime /dev/data/home /mnt/home
+cd mobconf
 ```
 
+*For NBDE base system*
+```
+/bin/bash udvtang-prep-install 
+```
+
+*For Notebook or regular desktop base system*
+```
+/bin/bash systemd-prep-install
+```
+
+
 ## configs
+
+*For NBDE base system*
+```
+/bin/bash /post/udvtang-post-install
+```
+
+*For Notebook or regular desktop base system*
+```
+/bin/bash /post/systemd-post-install
+```
+
 #### user
 ```
 useradd -m nama_user
@@ -131,3 +137,31 @@ aide --init
 mv /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz
 ```
 
+## additional need
+
+#### data pods
+```
+lvcreate -L 20G  data -n pods
+```
+```
+mkfs.btrfs /dev/data/pods
+```
+```
+mkdir -p /mnt/var/lib /mnt/var/lib/containers
+```
+```
+mount -o rw,nodev,noexec,nosuid,relatime /dev/data/pods /mnt/var/lib/containers
+```
+#### data home
+```
+lvcreate -l100%FREE  data -n home
+```
+```
+mkfs.ext4 -b 4096 /dev/data/home
+```
+```
+mkdir /mnt/home
+```
+```
+mount -o rw,nodev,noexec,nosuid,relatime /dev/data/home /mnt/home
+```

@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [[ -z $DISK_BOOOT ]];then
+    echo "Error disk boot is empty"
+    exit
+fi
+
 pvcreate /dev/mapper/proc 
 vgcreate proc /dev/mapper/proc
 
@@ -7,9 +12,9 @@ lvcreate -L 10G proc -n root
 mkfs.ext4 -b 4096 /dev/proc/root
 mount /dev/proc/root /mnt
 
-mkfs.vfat -F32 -S 4096 -n BOOT /dev/nvme0n1p1
+mkfs.vfat -F32 -S 4096 -n BOOT $DISK_BOOOT
 mkdir /mnt/boot
-mount -o uid=0,gid=0,fmask=0077,dmask=0077 /dev/nvme0n1p1 /mnt/boot
+mount -o uid=0,gid=0,fmask=0077,dmask=0077 $DISK_BOOOT /mnt/boot
 
 lvcreate -L 15G proc -n opts
 mkfs.ext4 -b 4096 /dev/proc/opts
