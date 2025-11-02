@@ -79,4 +79,9 @@ cp -fr sysd/* /mnt/
 
 
 genfstab -U /mnt > /mnt/etc/fstab
+echo "" >> /mnt/etc/fstab
+echo "# /dev/mapper/proc-temp" >> /mnt/etc/fstab
+echo "tmpfs     					/tmp        		tmpfs   defaults,rw,nosuid,nodev,noexec,relatime,size=256M" >>  /mnt/etc/fstab
+
+
 arch-chroot /mnt

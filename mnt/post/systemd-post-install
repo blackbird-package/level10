@@ -99,15 +99,3 @@ systemctl enable --global pipewire-pulse
 ## boot command
 bootctl --path=/boot install
 mkinitcpio -P
-
-## message
-echo"
-1. tambahkan user pengguna
-2. tambahkan hostname
-3. edit cmdline.d/01-boot sesuaikan dengan tipe udev / systemd
-3. tambahkan UUID disk data kedalam file /etc/crypttab
-4. edit file /etc/systemd/network/20-ethernet untuk mengganti ip address
-5. 'nvim /etc/passwd' ganti line user game dibawah no body dan shell dari bash menjadi nologin
-99. Jalankan perintah 'aide --init'
-100. jalan perintah 'mv /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz'
-"
