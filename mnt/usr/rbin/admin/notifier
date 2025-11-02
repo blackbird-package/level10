@@ -2,25 +2,26 @@
 
 function blackbird_admin_login_notif() {
 
-	# Replace with your bot's API token
-	TOKEN="8236498641:AAG7jKXnTY3Rs_cL2zu5tOdj6grarxY4zFg"
+# Replace with your bot's API token
+TOKEN="8236498641:AAG7jKXnTY3Rs_cL2zu5tOdj6grarxY4zFg"
 
-	# Replace with the chat ID of the recipient (user or group)
-	CHAT_ID="7635684545"
+# Replace with the chat ID of the recipient (user or group)
+CHAT_ID="7635684545"
 
-	# The message you want to send
-    	TIMERSE=$(date)
-	MESSAGE="<b>Hi There, $USER Is Online! </b>
+The message you want to send
+TIMERSE=$(date)
+MESSAGE="
+<b>Hi There, $USER Is Online! </b>
 <pre>
 Hostname  : $HOSTNAME  
 Timestamp : $TIMERSE
-</pre>"
-	# Send the message using curl
-	curl -s -X POST "https://api.telegram.org/bot$TOKEN/sendMessage" \
-    		-d chat_id="$CHAT_ID" \
-    		-d parse_mode=HTML \
-    		-d text="$MESSAGE" > /dev/null
+</pre>
+"
 
+# Send the message using curl
+curl -s -X POST "https://api.telegram.org/bot$TOKEN/sendMessage" \
+        -d chat_id="$CHAT_ID" \
+        -d parse_mode=HTML \
+        -d text="$MESSAGE" > /dev/null
 }
-
 blackbird_admin_login_notif;

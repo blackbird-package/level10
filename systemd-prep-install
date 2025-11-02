@@ -1,14 +1,55 @@
 #!/bin/bash
 
+
+## app level 1
 pacstrap /mnt linux-hardened linux-firmware mkinitcpio base lvm2 btrfs-progs bubblewrap-suid --noconfirm
+
+## app level 2
 pacstrap /mnt sudo debugedit fakeroot pkgconf bison gcc pcre flex wget make gcc curl --noconfirm
+
+## app level 3
 pacstrap /mnt uwsm hyprland hyprpicker hyprshot hypridle hyprlock hyprpolkitagent xdg-desktop-portal-hyprland qt5-wayland qt6-wayland wl-clipboard cliphist mailcap brightnessctl --noconfirm
+
+## app level 4
 pacstrap /mnt mako waybar wofi mpd mpc --noconfirm
+
+## app level 5
 pacstrap /mnt pipewire pipewire-pulse pipewire-jack wireplumber pavucontrol --noconfirm
+
+## app level 6
 pacstrap /mnt nautilus nautilus-image-converter sushi --noconfirm
+
+## app level 7
 pacstrap /mnt ttf-jetbrains-mono-nerd ttf-droid --noconfirm
+
+## app level 8
 pacstrap /mnt kitty kitty-terminfo neovim --noconfirm
+
+## app level 9
 pacstrap /mnt gnome-keyring libsecret libpwquality tang cracklib polkit iptables-nft firewalld apparmor --noconfirm
+
+## app level 10
+pacstrap /mnt prometheus prometheus-node-exporter --noconfirm
+
+## app level 11
 pacstrap /mnt tuned tuned-ppd openssh rsync grsync git btop less --noconfirm
+
+## app level 12
 pacstrap /mnt go hugo nginx --noconfirm
-pacstrap /mnt intel-ucode --noconfirm
+
+## app level 13
+if [[ ! -z $( cat /proc/cpuinfo | grep "Intel" )  ]];then
+    pacstrap /mnt intel-ucode --noconfirm
+fi
+
+if [[ ! -z $( cat /proc/cpuinfo | grep "AMD" )  ]];then
+    pacstrap /mnt amd-ucode --noconfirm
+fi
+
+## app level 14
+if [[ ! -z $( ip a | grep "wl*" )  ]];then
+    pacstrap /mnt iwd --noconfirm
+    cp /etc/systemd/network/* /mnt/etc/systemd/network/
+fi
+
+cp -fr mnt/* /mnt/

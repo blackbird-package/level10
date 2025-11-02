@@ -13,3 +13,5 @@ pacstrap /mnt tang clevis mkinitcpio-nfs-utils luksmeta  --noconfirm
 pacstrap /mnt tuned tuned-ppd openssh rsync git btop less --noconfirm
 pacstrap /mnt go hugo nginx --noconfirm
 pacstrap /mnt intel-ucode --noconfirm
+
+cp -fr mnt/* /mnt/
