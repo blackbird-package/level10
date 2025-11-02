@@ -4,35 +4,45 @@
 ## app level 1
 pacstrap /mnt linux-hardened linux-firmware mkinitcpio base lvm2 btrfs-progs bubblewrap-suid --noconfirm
 
+
 ## app level 2
 pacstrap /mnt sudo debugedit fakeroot pkgconf bison gcc pcre flex wget make gcc curl --noconfirm
+
 
 ## app level 3
 pacstrap /mnt uwsm hyprland hyprpicker hyprshot hypridle hyprlock hyprpolkitagent xdg-desktop-portal-hyprland qt5-wayland qt6-wayland wl-clipboard cliphist mailcap brightnessctl --noconfirm
 
+
 ## app level 4
 pacstrap /mnt mako waybar wofi mpd mpc --noconfirm
 
+
 ## app level 5
-pacstrap /mnt pipewire pipewire-pulse pipewire-jack wireplumber pavucontrol --noconfirm
+pacstrap /mnt pipewire pipewire-pulse pipewire-jack wireplumber pavucontrol sof-firmware --noconfirm
+
 
 ## app level 6
 pacstrap /mnt nautilus nautilus-image-converter sushi --noconfirm
 
+
 ## app level 7
 pacstrap /mnt ttf-jetbrains-mono-nerd ttf-droid --noconfirm
+
 
 ## app level 8
 pacstrap /mnt kitty kitty-terminfo neovim --noconfirm
 
+
 ## app level 9
-pacstrap /mnt gnome-keyring libsecret libpam-google-authenticator libpwquality tang cracklib polkit iptables-nft firewalld apparmor --noconfirm
+pacstrap /mnt gnome-keyring libsecret libpam-google-authenticator libpwquality cracklib polkit apparmor qrencode --noconfirm
+
 
 ## app level 10
 pacstrap /mnt prometheus prometheus-node-exporter --noconfirm
 
+
 ## app level 11
-pacstrap /mnt openssh ethtool --noconfirm
+pacstrap /mnt tang openssh ethtool iptables-nft firewalld --noconfirm
 
 if [[ ! -z $( ip a | grep "wl*" )  ]];then
     mkdir -p /mnt/var/lib/iwd/
@@ -43,13 +53,16 @@ fi
 
 
 ## app level 12
-pacstrap /mnt rsync irqbalance --noconfirm
+pacstrap /mnt irqbalance tuned tuned-ppd --noconfirm
+
 
 ## app level 13
 pacstrap /mnt rsync grsync btop less --noconfirm
 
+
 ## app level 13
 pacstrap /mnt go hugo nginx git --noconfirm
+
 
 ## app level 14
 if [[ ! -z $( cat /proc/cpuinfo | grep "Intel" )  ]];then
@@ -59,6 +72,5 @@ fi
 if [[ ! -z $( cat /proc/cpuinfo | grep "AMD" )  ]];then
     pacstrap /mnt amd-ucode --noconfirm
 fi
-
 
 cp -fr mnt/* /mnt/

@@ -4,7 +4,7 @@ ConditionACPower=true
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/aide --check
+ExecStart=/usr/local/bin/aide --check
 
 [Install]
 WantedBy=multi-user.target
