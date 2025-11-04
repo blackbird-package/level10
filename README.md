@@ -280,20 +280,19 @@ pacstrap /mnt linux-hardened linux-firmware mkinitcpio base lvm2 btrfs-progs bub
 ```
 pacstrap /mnt sudo debugedit fakeroot pkgconf bison gcc pcre flex wget make gcc curl less --noconfirm
 ```
+**3. audio system**
+```
+pacstrap /mnt pipewire pipewire-pulse pipewire-jack wireplumber pavucontrol sof-firmware mpd mpc --noconfirm
+```
 
-**3. desktop**
+**4. desktop**
 ```
 pacstrap /mnt uwsm hyprland hyprpicker hyprshot hypridle hyprlock hyprpolkitagent xdg-desktop-portal-hyprland qt5-wayland qt6-wayland wl-clipboard cliphist mailcap brightnessctl --noconfirm
 ```
 
-**4. panel**
+**5. panel**
 ```
 pacstrap /mnt mako waybar wofi mpd mpc --noconfirm
-```
-
-**5. audio system**
-```
-pacstrap /mnt pipewire pipewire-pulse pipewire-jack wireplumber pavucontrol sof-firmware mpd mpc --noconfirm
 ```
 
 **6. file system**
@@ -380,7 +379,7 @@ echo "# /dev/mapper/proc-temp" >> /mnt/etc/fstab
 ```
 echo "tmpfs     					/tmp        		tmpfs   defaults,rw,nosuid,nodev,noexec,relatime,size=256M" >> /mnt/etc/fstab
 ```
-**2.config**
+**2. config**
 ```
 git clone https://github.com/blackbird-package /mnt/opt/config
 ```
@@ -399,32 +398,23 @@ cp -fr /mnt/opt/config/syd /mnt
 ```
 
 
-### chrooting
+**3.chroot**
 ```
 arch-chroot /mnt
 ```
-### hostname
+
+## 2. postconfig
+
+**1. hostname** 
 ```
 echo 'nama_hostname' > /etc/hostname
 ```
-### localtime
+**2. locatime** 
 ```
 ln -sf /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
 ```
-
 ```
 hwclock --systohc
-```
-```
-mkdir /etc/systemd/timesyncd.conf.d
-```
-```
-nvim /etc/systemd/timesyncd.conf.d/local.conf
-```
-```
-[Time]
-NTP=0.id.pool.ntp.org 1.id.pool.ntp.org 2.id.pool.ntp.org 3.id.pool.ntp.org
-FallbackNTP=time.cloudflare.com time.google.com time.aws.com
 ```
 ```
 timedatectl set-ntp true
@@ -442,128 +432,69 @@ timedatectl show-timesync --all
 systemctl enable systemd-timesyncd.service
 ```
 
-### locale
+**2. locale** 
+```
+locale-gen
+```
+**2. users** 
 
+- system user
 ```
-nvim /etc/locale.gen
-```
-uncommenting
-```
-en_US.UTF-8 UTF-8
-en_US ISO-8859-1
+echo 'loki ALL=(ALL:ALL) ALL' >> /etc/sudoers
 ```
 ```
-locale-gen && locale > /etc/locale.conf
+useradd -d /var/usr loki
 ```
 ```
-sed -i '1s/.*/LANG=en_US.UTF-8/' /etc/locale.conf
+mkdir /var/usr/.ssh
 ```
 ```
-cat /etc/locale.conf
+chmod 700 /var/usr/.ssh/
 ```
 ```
-touch /etc/vconsole.conf
+touch /var/usr/.ssh/authorized_keys
 ```
 ```
-nvim /etc/vconsole.conf
+chmod 600 /var/usr/.ssh/authorized_keys
 ```
 ```
-FONT=lat2-16
-FONT_MAP=8859-2
+sudo chattr +i /var/usr/.ssh/authorized_keys
 ```
-### skel
+```
+chown -R loki:loki /var/usr
+```
+```
+passwd loki
+```
+isikan password default
+- daemon user
+```
+useradd -d /var/games -u 50 -g games games
+```
+```
+cat /etc/passwd | grep games
+```
+```
+passwd -l games
+```
+```
+nvim /etc/passwd
+```
+pastikan line `games` dibawah `nobody` dan shell menjadi`/usr/bin/nologin`, berikut contoh
+```
+nobody:x:65534:65534:Kernel Overflow User:/:/usr/bin/nologin
+games:x:50:50:Games User:/:/usr/bin/nologin
+```
+- admin user
 
-```
-mkdir /etc/skel/.config
-```
-
-```
-git clone https://github.com/blackbird-package/skel /tmp/skel
-```
-```
-mv /tmp/skel/skels/* /etc/skel/.config
-```
-
-```
-rm /etc/profile /etc/bash.bashrc
-```
-
-```
-cp /tmp/skel/profile /tmp/skel/bash.bashrc /etc/
-```
-
-```
-git clone https://github.com/blackbird-package/conf.git /tmp/conf
-```
-
-```
- mv /tmp/conf/cfg/etc/skel/.local/ /etc/skel/
-```
-
-### themes
-
-#### installation
-
-```
-git clone https://github.com/blackbird-package/flow.git /tmp/flow
-```
-
-#### configuration
-
-```
-mkdir /usr/share/themes
-```
-
-```
- mkdir /etc/skel/.themes
-```
-
-```
- tar -xf /tmp/flow/pkg.tar.xz -C /usr/share/themes/
-```
-
-```
- tar -xf /tmp/flow/pkg.tar.xz -C /etc/skel/.themes/
-```
-
-
-### icons
-
-```
- git clone https://github.com/blackbird-package/eggs.git /tmp/eggs
-```
-
-#### configuration
-
-```
-mkdir /etc/skel/.icons
-```
-
-```
-tar -xf /tmp/eggs/pkg.tar.xz -C /usr/share/icons/
-```
-
-```
-tar -xf /tmp/eggs/pkg.tar.xz -C /etc/skel/.icons/
-```
-### operational user
-```
-rm /etc/skel/.bash_profile
-```
-```
-rm /etc/skel/.bashrc
-```
-```
-rm /etc/skel/.bash_logout
-```
 ```
 useradd -m nama_user
 ```
 ```
+echo 'nama_user ALL=(ALL:ALL) ALL' >> /etc/sudoers.d/none
+```
+```
 passwd nama_user
-```
-```
-echo "nama_user ALL=(ALL:ALL) ALL" > /etc/sudoers.d/00_nama_user
 ```
 ```
 su nama_user
@@ -577,74 +508,14 @@ exit
 ```
 exit
 ```
-### system user
-```
-echo 'loki ALL=(ALL:ALL) ALL' >> /etc/sudoers.d/01_loki
-```
-```
-useradd -d /var/usr loki
-```
-```
-chown -R loki:loki /var/usr
-```
-```
-passwd loki
-```
-```
-su loki
-```
-```
-cd ~
-```
-```
-mkdir /var/usr/.ssh
-```
-```
-nvim /var/usr/.ssh/authorized_keys
-```
-input public keys loki
-```
-chmod 700 .ssh/
-```
-```
-chmod 600 .ssh/authorized_keys
-```
-```
-sudo chattr +i .ssh/authorized_keys
-```
-```
-sudo su
-```
-```
-exit
-```
-```
-exit
-```
-```
-useradd -d /var/games -u 50 -g games games
-```
-```
-cat /etc/passwd | grep games
-```
-output
-```
-games:x:50:50::/var/games:/usr/bin/nologin
-```
-```
-passwd -l games
-```
-```
-nvim /etc/passwd
-```
-pastikan line `games` dibawah `nobody` dan `/usr/bin/nologin`
 
-### hook clevis
+**3. nbde** 
+- clevis client
 ```
-su loki
+su nama_user
 ```
 ```
-git clone https://aur.archlinux.org/mkinitcpio-clevis-hook.git 
+git clone https://aur.archlinux.org/mkinitcpio-clevis-hook.git
 ```
 ```
 cd mkinitcpio-clevis-hook
@@ -653,103 +524,18 @@ cd mkinitcpio-clevis-hook
 makepkg -si
 ```
 ```
-clevis luks bind -d /dev/nvme0n1p3 tang '{"url":"http://10.10.1.2:51379"}'
-```
-```
-clevis luks bind -d /dev/nvme0n1p3 tang '{"url":"http://10.10.1.10:51379"}'
-```
-```
-clevis luks bind -d /dev/nvme0n1p3 tang '{"url":"http://10.10.1.11:51379"}'
-```
-```
-clevis luks bind -d /dev/nvme0n1p3 tang '{"url":"http://10.10.1.13:51379"}'
-```
-```
-clevis luks bind -d /dev/nvme0n1p3 tang '{"url":"http://10.10.1.14:51379"}'
-```
-```
 clevis luks bind -d /dev/nvme0n1p3 tang '{"url":"http://10.10.1.15:51379"}'
-```
-```
-clevis luks bind -d /dev/nvme0n1p4 tang '{"url":"http://10.10.1.2:51379"}'
-```
-```
-clevis luks bind -d /dev/nvme0n1p4 tang '{"url":"http://10.10.1.10:51379"}'
-```
-```
-clevis luks bind -d /dev/nvme0n1p4 tang '{"url":"http://10.10.1.11:51379"}'
-```
-```
-clevis luks bind -d /dev/nvme0n1p4 tang '{"url":"http://10.10.1.13:51379"}'
-```
-```
-clevis luks bind -d /dev/nvme0n1p4 tang '{"url":"http://10.10.1.14:51379"}'
-```
-```
-clevis luks bind -d /dev/nvme0n1p4 tang '{"url":"http://10.10.1.15:51379"}'
 ```
 ```
 systemctl enable clevis-luks-askpass.path
 ```
-### tang server
+
+- tang server
 ```
 systemctl enable tangd.socket
 ```
-```
-mkdir /etc/systemd/system/tangd.socket.d
-```
-```
-nvim /etc/systemd/system/tangd.socket.d/override.conf
-```
-```
-[Socket]
-ListenStream=
-ListenStream=7500 
-```
-### firewelld
 
-```
-nvim /usr/lib/firewalld/zones/block.xml
-```
-```
-nvim /usr/lib/firewalld/zones/external.xml
-```
-```
-nvim /usr/lib/firewalld/zones/home.xml
-```
-```
-nvim /usr/lib/firewalld/zones/internal.xml 
-```
-```
-nvim /usr/lib/firewalld/zones/dmz.xml 
-```
-```
-nvim /usr/lib/firewalld/zones/work.xml 
-```
- 
-delete semua service 
-
-```
-nvim /usr/lib/firewalld/zones/public.xml 
-```
-
-delete semua service selain ssh,dan tamahkan
-```
-  <port protocol="tcp" port="7500"/>
-```
-```
-  <port protocol="tcp" port="9090"/>
-```
-```
-  <port protocol="tcp" port="9100"/>
-```
-dibawah
-```
-<service name="ssh"/>
-```
-
-## os release
-
+**4. release** 
 ```
 echo '' > /usr/lib/os-release
 ```
@@ -770,44 +556,6 @@ PRIVACY_POLICY_URL="https://blackbird.lektor.co.id/privacy-policy/"
 LOGO=blackbird-logo
 ```
 
-## pamd
-
-
-To avoid the temptation of creating weak passwords, PAM must be properly configured to implement a password policy, as well as securely control the login process. Here we are going to implement this password policy:
-
-- Minimum length: 14 characters.
-- Required characters: Uppercase, lowercase, digits, and special characters.
-- Different characters between passwords: 3 characters.
-- Retries: 3 times.
-- Retries before locking: 6 times.
-- Time between each retry: 3 seconds.
-- Time before automatic account lockout: 10 minutes.
-- Storing method: SHA-512 in /etc/shadow.
-
-To achieve it, open /etc/pam.d/passwd in a text editor, comment all lines --considering you have not changed this file yet-- and add the next lines.
-```
-nvim /etc/pam.d/passwd
-```
-```
-password	optional	pam_gnome_keyring.so
-password required pam_cracklib.so retry=3 minlen=14 difok=3 dcredit=-1 ucredit=-1 ocredit=-1 lcredit=-1
-password required pam_unix.so     use_authtok sha512 shadow
-```
-
-## package manager
-
-```
-nvim /etc/pacman.conf
-```
-```
-SigLevel = Required DatabaseOptional TrustedOnly
-```
-uncomment
-```
-UseSysLog
-Color
-VerbosePkgLists
-```
 
 ## apparmor 
 
@@ -815,245 +563,6 @@ VerbosePkgLists
 systemctl enable apparmor.service
 ```
 
-## secure shell hardening
-
-```
-mv /etc/ssh/sshd_config /etc/backup
-```
-```
-nvim /etc/ssh/sshd_config
-```
-```
-# Include drop-in configurations
-Include /etc/ssh/sshd_config.d/*.conf
-
-PubkeyAuthentication yes
-PasswordAuthentication yes
-
-Protocol 2
-
-Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
-KexAlgorithms mlkem768x25519-sha256,sntrup761x25519-sha512,curve25519-sha256@libssh.org
-MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512,hmac-sha2-256
-
-PermitRootLogin no
-PermitEmptyPasswords no
-LoginGraceTime 20
-MaxAuthTries 3
-MaxSessions 10
-ClientAliveCountMax 3
-Banner no
-
-AllowAgentForwarding no
-AllowTcpForwarding no
-X11Forwarding no
-
-# override default of no subsystems
-#Subsystem	sftp	/usr/lib/ssh/sftp-server
-```
-```
-systemctl enable sshd
-```
-
-
-## kernels harden
-
-```
-nvim /etc/sysctl.d/30-secs.conf
-```
-
-```
-## disable ipv6
-net.ipv6.conf.all.disable_ipv6 = 1
-
-# prevent the automatic loading of line disciplines
-# https://lore.kernel.org/patchwork/patch/1034150
-dev.tty.ldisc_autoload=0
-
-
-# additional protections for fifos, hardlinks, regular files, and symlinks
-# https://patchwork.kernel.org/patch/10244781
-# slightly tightened up from the systemd default values of "1" for each
-fs.protected_fifos=2
-fs.protected_regular=2
-
-
-## yama ptrac
-## https://theprivacyguide1.github.io/linux_hardening_guide
-kernel.yama.ptrace_scope=2
-
-
-# prevents processes from creating new io_uring instances
-# https://security.googleblog.com/2023/06/learnings-from-kctf-vrps-42-linux.html
-kernel.io_uring_disabled=2
-
-
-# disable unprivileged user namespaces
-# https://lwn.net/Articles/673597
-# (these two values are redundant, but not all kernels support the first one)
-user.max_user_namespaces=0
-
-
-# reverse path filtering to prevent some ip spoofing attacks
-# (default in some distributions)
-net.ipv4.conf.all.rp_filter=1
-net.ipv4.conf.default.rp_filter=1
-
-
-# reverse path filtering to prevent some ip spoofing attacks
-# (default in some distributions)
-net.ipv4.conf.all.rp_filter=1
-net.ipv4.conf.default.rp_filter=1
-
-
-# disable icmp redirects and RFC1620 shared media redirects
-net.ipv4.conf.all.accept_redirects=0
-net.ipv4.conf.all.secure_redirects=0
-net.ipv4.conf.all.send_redirects=0
-net.ipv4.conf.all.shared_media=0
-net.ipv4.conf.default.accept_redirects=0
-net.ipv4.conf.default.secure_redirects=0
-net.ipv4.conf.default.send_redirects=0
-net.ipv4.conf.default.shared_media=0
-net.ipv6.conf.all.accept_redirects=0
-net.ipv6.conf.default.accept_redirects=0
-
-
-# disable tcp timestamps to avoid leaking some system information
-# https://www.whonix.org/wiki/Disable_TCP_and_ICMP_Timestamps
-net.ipv4.tcp_timestamps=0
-
-# disable usb
-kernel.deny_new_usb=1
-
-#disable coredum
-kernel.core_pattern=|/bin/false
-```
-
-## module hardening
-
-### network
-```
-nvim /etc/modprobe.d/disable-network-protocols.conf
-```
-```
-install dccp /bin/true
-install sctp /bin/true
-install rds /bin/true
-install tipc /bin/true
-install n-hdlc /bin/true
-install ax25 /bin/true
-install netrom /bin/true
-install x25 /bin/true
-install rose /bin/true
-install decnet /bin/true
-install econet /bin/true
-install af_802154 /bin/true
-install ipx /bin/true
-install appletalk /bin/true
-install psnap /bin/true
-install p8023 /bin/true
-install p8022 /bin/true
-```
-
-### filesystem
-```
-nvim /etc/modprobe.d/disable-filesystem-protocols.conf
-```
-```
-install cramfs /bin/true
-install freevxfs /bin/true
-install jffs2 /bin/true
-install hfs /bin/true
-install hfsplus /bin/true
-install squashfs /bin/true
-install udf /bin/true
-```
-
-
-## loging config
-```
-mkdir -p /etc/systemd/journald.conf.d/
-```
-```
-nvim /etc/systemd/journald.conf.d/01-default.conf
-```
-```
-[Journal]
-SystemMaxUse=1G
-SystemKeepFree=500M
-RuntimeMaxUse=200M
-RuntimeKeepFree=50M
-MaxFileSec=1month
-Storage=persistent
-```
-
-## sleep config
-```
-mkdir -p /etc/systemd/sleep.conf.d/
-```
-```
-nvim /etc/systemd/sleep.conf.d/01-blackbird.conf
-```
-```
-[Sleep]
-AllowSuspend=no
-AllowHibernation=no
-AllowHybridSleep=no
-AllowSuspendThenHibernate=no
-```
-
-## coredump config
-```
-nvim /etc/systemd/coredump.conf
-```
-comment "[coredum]" dan tambah di akhir document
-```
-[Coredump]
-Storage=none
-ProcessSizeMax=0
-```
-
-## login sudoers
-```
-nvim /etc/sudo.conf
-```
-tambahkan pada bagian paling bawah
-```
-## Config Log
-Defaults logfile="/var/log/sudo.log"
-```
-
-## autoupdate
-```
-nvim /etc/systemd/system/update.service
-```
-```
-[Unit]
-Description=Run system update
-
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/pacman --sync --refresh --sysupgrade --noconfirm
-```
-```
-nvim /etc/systemd/system/update.timer
-```
-```
-[Unit]
-Description=Run the system update daily
-
-[Timer]
-OnCalendar=hourly
-Persistent=true
-Unit=update.service
-
-[Install]
-WantedBy=timers.target
-```
-```
-systemctl enable update.timer 
-```
 ## prometheus 
 ```
 systemctl enable prometheus.service
@@ -1062,44 +571,11 @@ systemctl enable prometheus.service
 systemctl enable prometheus-node-exporter.service
 ```
 
-### configuration
-```
-cd /etc/prometheus
-```
-```
-cp prometheus.yml prometheus.yml.bck
-```
-
-```
-nvim /etc/prometheus/prometheus.yml
-```
-tambahkan ke paling bawah
-```
-scrape_configs:
-   - job_name: 'prometheus'
-     static_configs:
-       - targets: ['localhost:9090']
-         labels:
-           app: "promotheus"
-   - job_name: 'node'
-     static_configs:
-       - targets: ['localhost:9100']
-         labels:
-           app: "exporter"
-```
 ### irqbalance
 ```
 systemctl enable irqbalance
 ```
-```
-mkdir -p /usr/lib/systemd/system/irqbalance.service.d/
-```
-```
-cat > /usr/lib/systemd/system/irqbalance.service.d/10-no-private-users.conf <<EOF
-[Service]
-PrivateUsers=false
-EOF
-```
+
 ### tuned
 ```
 systemctl enable tuned
@@ -1107,8 +583,6 @@ systemctl enable tuned
 ```
 systemctl enable tuned-ppd.service
 ```
-
-
 
 ### network
 #### nginx
@@ -1134,166 +608,50 @@ systemctl enable systemd-resolved
 ```
 
 ### boot directory
-#### intel server
+
 ```
 rm /boot/initramfs-linux-hardened*
 ```
-
-```
-mkdir -p /boot/efi /boot/efi/linux /boot/efi/systemd /boot/efi/rescue /boot/efi/boot
-```
-
-```
-mkdir /boot/kernel
-```
-
+#### intel server
 ```
 mv /boot/intel-ucode.img /boot/vmlinuz-linux-hardened /boot/kernel
 ```
 
 
 #### amd server
-```
-rm /boot/initramfs-linux-hardened*
-```
-
-```
-mkdir -p /boot/efi /boot/efi/linux /boot/efi/systemd /boot/efi/rescue /boot/efi/boot
-```
-
-```
-mkdir /boot/kernel
-```
 
 ```
 mv /boot/amd-ucode.img /boot/vmlinuz-linux-hardened /boot/kernel
 ```
+
 ### kernel parameter
-```
-echo 'kernel.unprivileged_userns_clone=1' > /etc/sysctl.d/50-bubblewrap.conf
-```
-```
-mkdir /etc/cmdline.d
-```
-```
-touch /etc/cmdline.d/{01-boot.conf,02-mods.conf,03-secs.conf,04-perf.conf,05-nets.conf,06-misc.conf}
-```
-### 01-boot
+
+### udev
 ```
 echo "cryptdevice=UUID=$(blkid -s UUID -o value /dev/nvme0n1p3):proc root=/dev/proc/root" > /etc/cmdline.d/01-boot.conf
 ```
-
-### 03-secs
-```
-echo "lsm=landlock,lockdown,yama,integrity,apparmor,bpf lockdown=integrity init_on_alloc=1 init_on_free=1 page_alloc.shuffle=1 slab_nomerge vsyscall=none randomize_kstack_offset=1" > /etc/cmdline.d/03-secs.conf
-```
-
-### 04-perf
-```
-echo "ipv6.disable=1" > /etc/cmdline.d/04-perf.conf
-```
-### 05-nets
 ```
 echo "ip=(ip address)::10.10.1.1:255.255.255.0::eth0:none nameserver=10.10.1.1 nameserver=1.1.1.1 nameserver=8.8.8.8 nameserver=1.0.0.1 nameserver=8.8.4.4 nameserver=9.9.9.9 nameserver=149.112.112.112 " > /etc/cmdline.d/05-nets.conf
 ```
 ```
 nvim /etc/cmdline.d/05-nets.conf
 ```
-lalu ubah ip address
-
-### 06-misc
-
+### sysd
 ```
-echo "rw quiet" > /etc/cmdline.d/06-misc.conf
+echo "rd.luks.uuid=$(blkid -s UUID -o value /dev/nvme0n1p3)root=/dev/proc/root" > /etc/cmdline.d/01-boot.conf
 ```
+
+
 
 ## cryptab
 ```
 echo "data UUID=$(blkid -s UUID -o value /dev/nvme0n1p4) none" >> /etc/crypttab
-```
-### initram directory
-
-```
-rm -fr /etc/mkinitcpio.conf.d
-```
-```
-mv /etc/mkinitcpio.conf /etc/mkinitcpio.d/default.conf
-```
-```
-nvim /etc/mkinitcpio.d/default.conf
-```
-cari lalu commenting
-```
-HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck)
-```
-tambahkan
-```
-HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont net clevis encrypt lvm2 block filesystems fsck)
-```
-tambahkan pada bagian binaries
-```
-/usr/bin/curl
-```
-#### configure linux preset
-
-```
-nvim /etc/mkinitcpio.d/linux-hardened.preset
-```
-uncommenting 
-
-```
-#ALL_config="/etc/mkinitcpio.conf"
-```
-lalu ubah
-```
-ALL_config="/etc/mkinitcpio.d/default.conf"
-```
-edit
-```
-ALL_kver="/boot/vmlinuz-linux-hardened"
-```
-menjadi
-```
-ALL_kver="/boot/kernel/vmlinuz-linux-hardened" 
-```
-edit
-```
-PRESETS=('default' 'fallback')
-```
-lalu menjadi
-```
-PRESETS=('default')
-```
-uncommenting
-```
-#default_uki="/efi/EFI/Linux/arch-linux-hardened.efi"
-```
-lalu ubah
-```
-default_uki="/boot/efi/linux/blackbird-hardened.efi"
-```
-commenting
-```
-fallback_image="/boot/initramfs-linux-hardened-fallback.img"
-```
-```
-fallback_options="-S autodetect"
 ```
 ```
 bootctl --path=/boot install
 ```
 ```
 mkinitcpio -P
-```
-### recovery
-```
-curl --output /boot/efi/rescue/recovery.efi https://boot.netboot.xyz/ipxe/netboot.xyz.efi
-```
-```
-printf "title recovery\nefi /efi/rescue/recovery.efi" > /boot/loader/entries/recovery.conf
-```
-```
-cat /boot/loader/entries/recovery.conf
 ```
 ### wake on lan
 
@@ -1821,6 +1179,7 @@ git clone https://github.com/blackbird-package/level10.git /tmp/config
 ```
 cp -fr /tmp/config/* /
 ```
+
 
 
 
