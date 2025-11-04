@@ -380,10 +380,14 @@ git clone https://github.com/blackbird-package/level20.git /mnt/opt/config
 ```
 cp -fr /mnt/opt/config/mnt /mnt
 ```
+fot systemd
 ```
 cp -fr /mnt/opt/config/sysd /mnt
 ```
-
+fot ndbesys
+```
+cp -fr /mnt/opt/config/sysd /mnt
+```
 ### network
  - ethernet
 ```
