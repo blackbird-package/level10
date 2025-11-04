@@ -309,58 +309,62 @@ pacstrap /mnt sudo debugedit fakeroot pkgconf bison gcc pcre flex wget make curl
 ```
 pacstrap /mnt pipewire pipewire-pulse pipewire-jack wireplumber pavucontrol sof-firmware mpd mpc --noconfirm
 ```
-
-**5. desktop**
+**5. graphic system**
 ```
-pacstrap /mnt uwsm hyprland hyprpicker hyprshot hypridle hyprlock hyprpolkitagent xdg-desktop-portal-hyprland qt5-wayland qt6-wayland wl-clipboard cliphist mailcap brightnessctl --noconfirm
+pacstrap /mnt brightnessctl
 ```
 
-**6. panel**
+**6. desktop**
+```
+pacstrap /mnt sddm uwsm hyprland hyprpicker hyprshot hypridle hyprlock hyprpolkitagent xdg-desktop-portal-hyprland qt5-wayland qt6-wayland wl-clipboard cliphist mailcap  --noconfirm
+```
+
+**7. panel**
 ```
 pacstrap /mnt mako waybar wofi --noconfirm
 ```
 
-**7. file system**
+**8. file system**
 ```
 pacstrap /mnt nautilus nautilus-image-converter sushi --noconfirm
 ```
 
-**8. font system**
+**9. font system**
 ```
 pacstrap /mnt ttf-jetbrains-mono-nerd ttf-droid --noconfirm
 ```
 
-**9. terminal**
+**10. terminal**
 ```
 pacstrap /mnt kitty kitty-terminfo neovim --noconfirm
  ```
 
-**10. password**
+**11. password**
 ```
 pacstrap /mnt gnome-keyring libsecret libpam-google-authenticator libpwquality cracklib polkit apparmor qrencode --noconfirm
 ```
 
-**11. monitoring**
+**12. monitoring**
 ```
 pacstrap /mnt prometheus prometheus-node-exporter btop --noconfirm
 ```
 
-**12. performance**
+**13. performance**
 ```
 pacstrap /mnt irqbalance tuned tuned-ppd --noconfirm
 ```
 
-**13. backup**
+**14. backup**
 ```
 pacstrap /mnt rsync grsync --noconfirm 
 ```
 
-**14. hosting**
+**15. hosting**
 ```
 pacstrap /mnt go hugo nginx git --noconfirm
 ```
 
-**15. ucode**  
+**16. ucode**  
 pilih sesuai dengan jenis prosesor yang digunakan  
 - intel
 ```
@@ -370,7 +374,7 @@ pacstrap /mnt intel-ucode --noconfirm
 ```
 pacstrap /mnt amd-ucode --noconfirm
 ```
-**16. nbde**
+**17. nbde**
 ```
 pacstrap /mnt tang clevis mkinitcpio-nfs-utils luksmeta
 ```
