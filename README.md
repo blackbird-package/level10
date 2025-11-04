@@ -537,10 +537,10 @@ cd mkinitcpio-clevis-hook
 makepkg -si
 ```
 ```
-clevis luks bind -d /dev/[nama physical disk proc] tang '{"url":"http://10.10.1.16:7500"}'
+sudo clevis luks bind -d /dev/[nama physical disk proc] tang '{"url":"http://10.10.1.16:7500"}'
 ```
 ```
-clevis luks bind -d /dev/[nama physical disk data] tang '{"url":"http://10.10.1.16:7500"}'
+sudo clevis luks bind -d /dev/[nama physical disk data] tang '{"url":"http://10.10.1.16:7500"}'
 ```
 ```
 cd .. && rm -fr mkinitcpio-clevis-hook
@@ -706,6 +706,7 @@ umount -R /mnt
 ```
 reboot
 ```
+
 
 
 
