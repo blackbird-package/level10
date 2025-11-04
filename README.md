@@ -350,7 +350,7 @@ pacstrap /mnt intel-ucode --noconfirm
 ```
 pacstrap /mnt amd-ucode --noconfirm
 ```
-***16. udev nbde**
+**16. udev nbde**
 ```
 pacstrap /mnt tang clevis mkinitcpio-nfs-utils luksmeta ethtool
 ```
@@ -683,6 +683,7 @@ umount -R /mnt
 ```
 reboot
 ```
+
 
 
 
