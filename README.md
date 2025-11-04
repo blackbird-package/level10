@@ -1,7 +1,9 @@
 # blackbird protocol level 20
 
+## 1. prequsite
 
-## 1. preparation
+## 2. preparation
+
 ### additional package
 ```
 pacman -Syy
@@ -271,7 +273,7 @@ mkdir /mnt/home
 ```
 mount -o rw,nodev,noexec,nosuid,relatime /dev/data/home /mnt/home
 ```
-## 2. Installation
+## 3. Installation
 
 **1. network**
 ```
@@ -359,7 +361,7 @@ pacstrap /mnt amd-ucode --noconfirm
 pacstrap /mnt tang clevis mkinitcpio-nfs-utils luksmeta
 ```
 
-## 3. preconfing
+## 4. preconfing
 ### fstab
 ```
 genfstab -U /mnt > /mnt/etc/fstab
@@ -407,7 +409,7 @@ cp /var/lib/iwd/* /mnt/var/lib/iwd/
 arch-chroot /mnt
 ```
 
-## 4. postconfig
+## 5. postconfig
 
 ### hostname 
 ```
@@ -624,7 +626,7 @@ echo "data UUID=$(blkid -s UUID -o value /dev/[proc physical partition name]) no
 mkinitcpio -P
 ```
 
-## 5. Application
+## 6. Application
 ```
 mkdir -p /opt/flat
 ```
@@ -664,7 +666,7 @@ flatpak override --env=GTK_THEME=flow
 flatpak override --env=ICON_THEME=eggs
 ```
 
-## 6. Service
+## 7. Service
 ```
 systemctl enable systemd-timesyncd.service &&
 systemctl enable tangd.socket &&
@@ -693,7 +695,7 @@ for udev system based only
 systemctl enable clevis-luks-askpass.path
 ```
 
-## 7. finishing
+## 8. finishing
 ```
 exit
 ```
@@ -703,6 +705,7 @@ umount -R /mnt
 ```
 reboot
 ```
+
 
 
 
