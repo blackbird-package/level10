@@ -508,6 +508,38 @@ exit
 ```
 exit
 ```
+- root user
+```
+passwd -l root
+```
+
+**4. flatpak**
+```
+mkdir -p /opt/flat
+```
+```
+ln -sf /opt/flat /var/lib/flatpak
+```
+```
+pacstrap /mnt flatpak gnome-software --noconfirm 
+```
+```
+flatpak install --system -y --noninteractive flathub \
+    org.mozilla.firefox \
+    com.google.Chrome \
+    com.visualstudio.code \
+    de.wagnermartin.Plattenalbum \
+    md.obsidian.Obsidian \
+    org.gnome.Evolution \
+    org.gnome.Calculator \
+    com.github.tchx84.Flatseal \
+    org.keepassxc.KeePassXC \
+    org.telegram.desktop \
+    org.gnome.World.Secrets \
+    com.mongodb.Compass \
+    io.beekeeperstudio.Studio \
+    fr.free.Homebank
+```
 
 **3. nbde** 
 - clevis client
@@ -526,147 +558,8 @@ makepkg -si
 ```
 clevis luks bind -d /dev/nvme0n1p3 tang '{"url":"http://10.10.1.15:51379"}'
 ```
-```
-systemctl enable clevis-luks-askpass.path
-```
 
-- tang server
-```
-systemctl enable tangd.socket
-```
-
-**4. release** 
-```
-echo '' > /usr/lib/os-release
-```
-```
-nvim /usr/lib/os-release
-```
-```
-NAME="Blackbird"
-PRETTY_NAME="Blackbird"
-ID=blackbird
-BUILD_ID=rolling
-ANSI_COLOR="38;2;23;147;209"
-HOME_URL="https://blackbird.lektor.co.id/"
-DOCUMENTATION_URL="https://blackbird.lektor.co.id/"
-SUPPORT_URL="https://blackbird.lektor.co.id/support/"
-BUG_REPORT_URL="https://gitlab.blackbird.org/groups/issues"
-PRIVACY_POLICY_URL="https://blackbird.lektor.co.id/privacy-policy/"
-LOGO=blackbird-logo
-```
-
-
-## apparmor 
-
-```
-systemctl enable apparmor.service
-```
-
-## prometheus 
-```
-systemctl enable prometheus.service
-```
-```
-systemctl enable prometheus-node-exporter.service
-```
-
-### irqbalance
-```
-systemctl enable irqbalance
-```
-
-### tuned
-```
-systemctl enable tuned
-```
-```
-systemctl enable tuned-ppd.service
-```
-
-### network
-#### nginx
-```
-systemctl enable nginx
-```
-### network
-```
-nvim /etc/systemd/network/20-ethernet.network
-```
-```
-[Network]
-Address=[IP]/24
-Gateway=10.10.1.1
-DNS=1.1.1.1 8.8.8.8
-MulticastDNS=yes
-```
-```
-systemctl enable systemd-networkd
-```
-```
-systemctl enable systemd-resolved
-```
-
-### boot directory
-
-```
-rm /boot/initramfs-linux-hardened*
-```
-#### intel server
-```
-mv /boot/intel-ucode.img /boot/vmlinuz-linux-hardened /boot/kernel
-```
-
-
-#### amd server
-
-```
-mv /boot/amd-ucode.img /boot/vmlinuz-linux-hardened /boot/kernel
-```
-
-### kernel parameter
-
-### udev
-```
-echo "cryptdevice=UUID=$(blkid -s UUID -o value /dev/nvme0n1p3):proc root=/dev/proc/root" > /etc/cmdline.d/01-boot.conf
-```
-```
-echo "ip=(ip address)::10.10.1.1:255.255.255.0::eth0:none nameserver=10.10.1.1 nameserver=1.1.1.1 nameserver=8.8.8.8 nameserver=1.0.0.1 nameserver=8.8.4.4 nameserver=9.9.9.9 nameserver=149.112.112.112 " > /etc/cmdline.d/05-nets.conf
-```
-```
-nvim /etc/cmdline.d/05-nets.conf
-```
-### sysd
-```
-echo "rd.luks.uuid=$(blkid -s UUID -o value /dev/nvme0n1p3)root=/dev/proc/root" > /etc/cmdline.d/01-boot.conf
-```
-
-
-
-## cryptab
-```
-echo "data UUID=$(blkid -s UUID -o value /dev/nvme0n1p4) none" >> /etc/crypttab
-```
-```
-bootctl --path=/boot install
-```
-```
-mkinitcpio -P
-```
-### wake on lan
-
-```
-nvim /etc/udev/rules.d/81-wol.rules
-```
-```
-ACTION=="add", SUBSYSTEM=="net", NAME=="en*", RUN+="/usr/bin/ethtool -s $name wol g"
-```
-```
-ethtool interface | grep Wake-on
-```
-
-### instrusion detection
-
+**4. hids** 
 ```
 cd /tmp
 ```
@@ -688,315 +581,100 @@ cd aide-0.19.2
 ```
 make && make install
 ```
-```
-nvim /etc/systemd/system/aide.service
-```
-```
-[Unit]
-Description=Aide Check
-ConditionACPower=true
 
-[Service]
-Type=simple
-ExecStart=/usr/local/bin/aide --check
-
-[Install]
-WantedBy=multi-user.target
+**5. network** 
+```
+nvim /etc/systemd/network/20-ethernet.network
 ```
 ```
-nvim /etc/systemd/system/aide.timer
+[Network]
+Address=[IP]/24
+Gateway=10.10.1.1
+DNS=1.1.1.1 8.8.8.8
+MulticastDNS=yes
+```
+
+**5. booting ** 
+
+```
+rm /boot/initramfs-linux-hardened*
+```
+for intel processor
+```
+mv /boot/intel-ucode.img /boot/vmlinuz-linux-hardened /boot/kernel
+```
+for amd processor
+```
+mv /boot/amd-ucode.img /boot/vmlinuz-linux-hardened /boot/kernel
 ```
 ```
-[Unit]
-Description=Aide check every 2 Hours
+bootctl --path=/boot install
+```
 
-[Timer]
-OnCalendar=*:0/2:00
-Unit=aide.service
+**5. kernel param**
 
-[Install]
-WantedBy=multi-user.target
+- udev with nbde
+```
+echo "cryptdevice=UUID=$(blkid -s UUID -o value /dev/nvme0n1p3):proc root=/dev/proc/root" > /etc/cmdline.d/01-boot.conf
 ```
 ```
-systemctl enable aide.timer
+echo "ip=(ip address)::10.10.1.1:255.255.255.0::eth0:none nameserver=10.10.1.1 nameserver=1.1.1.1 nameserver=8.8.8.8 nameserver=1.0.0.1 nameserver=8.8.4.4 nameserver=9.9.9.9 nameserver=149.112.112.112 " > /etc/cmdline.d/05-nets.conf
 ```
 ```
-mkdir -p /var/log/aide
+nvim /etc/cmdline.d/05-nets.conf
 ```
+- systemd
 ```
-mkdir -p /var/lib/aide
+echo "rd.luks.uuid=$(blkid -s UUID -o value /dev/nvme0n1p3)root=/dev/proc/root" > /etc/cmdline.d/01-boot.conf
 ```
+
+**6. cryptab**
+
 ```
-touch /var/log/aide/aide.log 
+echo "data UUID=$(blkid -s UUID -o value /dev/nvme0n1p4) none" >> /etc/crypttab
 ```
+
+**4. service**
 ```
-nvim /etc/aide.conf 
+systemctl enable systemd-timesyncd.service &&
+systemctl enable tangd.socket &&
+systemctl enable apparmor.service &&
+systemctl enable sshd &&
+systemctl enable update.timer  &&
+systemctl enable prometheus.service &&
+systemctl enable prometheus-node-exporter.service &&
+systemctl enable irqbalance &&
+systemctl enable tuned &&
+systemctl enable tuned-ppd.service &&
+systemctl enable nginx &&
+systemctl enable systemd-networkd &&
+systemctl enable systemd-resolved &&
+systemctl enable aide.timer &&
+systemctl enable sddm &&
+systemctl enable nginx &&
+systemctl enable --global gcr-ssh-agent.socket &&
+systemctl enable --global hypridle.service &&
+systemctl enable --global hyprpolkitagent &&
+systemctl enable --global waybar &&
+systemctl enable --global pipewire-pulse &&
 ```
+
+for udev with nbde only
 ```
-# Example configuration file for AIDE.
-# More information about configuration options available in the aide.conf manpage.
-# Inspired from https://src.fedoraproject.org/rpms/aide/raw/rawhide/f/aide.conf
-
-# ┌───────────────────────────────────────────────────────────────┐
-# │ CONTENTS OF aide.conf                                         │
-# ├───────────────────────────────────────────────────────────────┘
-# │
-# ├──┐VARIABLES
-# │  ├── DATABASE
-# │  └── REPORT
-# ├──┐RULES
-# │  ├── LIST OF ATTRIBUTES
-# │  ├── LIST OF CHECKSUMS
-# │  └── AVAILABLE RULES
-# ├──┐PATHS
-# │  ├──┐EXCLUDED
-# │  │  ├── ETC
-# │  │  ├── USR
-# │  │  └── VAR
-# │  └──┐INCLUDED
-# │     ├── ETC
-# │     ├── USR
-# │     ├── VAR
-# │     └── OTHERS
-# │
-# └───────────────────────────────────────────────────────────────
-
-# ################################################################ VARIABLES
-
-# ################################ DATABASE
-
-@@define DBDIR /var/lib/aide
-@@define LOGDIR /var/log/aide
-
-# The location of the database to be read.
-database_in=file:@@{DBDIR}/aide.db.gz
-
-# The location of the database to be written.
-#database_out=sql:host:port:database:login_name:passwd:table
-#database_out=file:aide.db.new
-database_out=file:@@{DBDIR}/aide.db.new.gz
-
-# Whether to gzip the output to database
-gzip_dbout=yes
-
-# ################################ REPORT
-
-# Default.
-log_level=warning
-report_level=changed_attributes
-
-report_url=file:@@{LOGDIR}/aide.log
-report_url=stdout
-#report_url=stderr
-#NOT IMPLEMENTED report_url=mailto:root@foo.com
-#NOT IMPLEMENTED report_url=syslog:LOG_AUTH
-
-# ################################################################ RULES
-
-# ################################ LIST OF ATTRIBUTES
-
-# These are the default parameters we can check against.
-#p:             permissions
-#i:             inode:
-#n:             number of links
-#u:             user
-#g:             group
-#s:             size
-#b:             block count
-#m:             mtime
-#a:             atime
-#c:             ctime
-#S:             check for growing size
-#acl:           Access Control Lists
-#selinux        SELinux security context (must be enabled at compilation time)
-#xattrs:        Extended file attributes
-
-# ################################ LIST OF CHECKSUMS
-
-#md5:           md5 checksum
-#sha1:          sha1 checksum
-#sha256:        sha256 checksum
-#sha512:        sha512 checksum
-#rmd160:        rmd160 checksum
-#tiger:         tiger checksum
-#haval:         haval checksum (MHASH only)
-#gost:          gost checksum (MHASH only)
-#crc32:         crc32 checksum (MHASH only)
-#whirlpool:     whirlpool checksum (MHASH only)
-
-# ################################ AVAILABLE RULES
-
-# These are the default rules
-#R:             p+i+l+n+u+g+s+m+c+md5
-#L:             p+i+l+n+u+g
-#E:             Empty group
-#>:             Growing logfile p+l+u+g+i+n+S
-
-# You can create custom rules - my home made rule definition goes like this 
-ALLXTRAHASHES = sha1+rmd160+sha256+sha512+whirlpool+tiger+haval+gost+crc32
-ALLXTRAHASHES = sha1+rmd160+sha256+sha512+tiger
-# Everything but access time (Ie. all changes)
-EVERYTHING = R+ALLXTRAHASHES
-
-# Sane, with multiple hashes
-# NORMAL = R+rmd160+sha256+whirlpool
-# NORMAL = R+sha256+sha512
-NORMAL = p+i+l+n+u+g+s+m+c+sha256
-
-# For directories, don't bother doing hashes
-DIR = p+i+n+u+g+acl+xattrs
-
-# Access control only
-PERMS = p+i+u+g+acl
-
-# Logfile are special, in that they often change
-LOG = >
-
-# Just do sha256 and sha512 hashes
-FIPSR = p+i+n+u+g+s+m+c+acl+xattrs+sha256
-LSPP = FIPSR+sha512
-
-# Some files get updated automatically, so the inode/ctime/mtime change
-# but we want to know when the data inside them changes
-DATAONLY = p+n+u+g+s+acl+xattrs+sha256
-
-# ################################################################ PATHS
-
-# Next decide what directories/files you want in the database.
-
-# ################################ EXCLUDED
-
-# ################ ETC
-
-# Ignore backup files
-!/etc/.*~
-
-# Ignore mtab
-!/etc/mtab
-
-# ################ USR
-
-# These are too volatile
-!/usr/src
-!/usr/tmp
-
-# ################ VAR
-
-# Ignore logs
-!/var/lib/pacman/.*
-!/var/cache/.*
-!/var/log/.*  
-!/var/log/aide.log
-!/var/run/.*  
-!/var/spool/.*
-
-# ################################ INCLUDED
-
-# ################ ETC
-
-# Check only permissions, inode, user and group for /etc, but cover some important files closely.
-/etc                               PERMS
-/etc/aliases                       FIPSR
-/etc/at.allow                      FIPSR
-/etc/at.deny                       FIPSR
-/etc/audit/                        FIPSR
-/etc/bash_completion.d/            NORMAL
-/etc/bashrc                        NORMAL
-/etc/cron.allow                    FIPSR
-/etc/cron.daily/                   FIPSR
-/etc/cron.deny                     FIPSR
-/etc/cron.d/                       FIPSR
-/etc/cron.hourly/                  FIPSR
-/etc/cron.monthly/                 FIPSR
-/etc/crontab                       FIPSR
-/etc/cron.weekly/                  FIPSR
-/etc/cups                          FIPSR
-/etc/exports                       NORMAL
-/etc/fstab                         NORMAL
-/etc/group                         NORMAL
-/etc/grub/                         FIPSR
-/etc/gshadow                       NORMAL
-/etc/hosts.allow                   NORMAL
-/etc/hosts.deny                    NORMAL
-/etc/hosts                         FIPSR
-/etc/inittab                       FIPSR
-/etc/issue                         FIPSR
-/etc/issue.net                     FIPSR
-/etc/ld.so.conf                    FIPSR
-/etc/libaudit.conf                 FIPSR
-/etc/localtime                     FIPSR
-/etc/login.defs                    FIPSR
-/etc/login.defs                    NORMAL
-/etc/logrotate.d                   NORMAL
-/etc/modprobe.conf                 FIPSR
-/etc/nscd.conf                     NORMAL
-/etc/pam.d                         FIPSR
-/etc/passwd                        NORMAL
-/etc/postfix                       FIPSR
-/etc/profile.d/                    NORMAL
-/etc/profile                       NORMAL
-/etc/rc.d                          FIPSR
-/etc/resolv.conf                   DATAONLY
-/etc/securetty                     FIPSR
-/etc/securetty                     NORMAL
-/etc/security                      FIPSR
-/etc/security/opasswd              NORMAL
-/etc/shadow                        NORMAL
-/etc/skel                          NORMAL
-/etc/ssh/ssh_config                FIPSR
-/etc/ssh/sshd_config               FIPSR
-/etc/stunnel                       FIPSR
-/etc/sudoers                       NORMAL
-/etc/sysconfig                     FIPSR
-/etc/sysctl.conf                   FIPSR
-/etc/vsftpd.ftpusers               FIPSR
-/etc/vsftpd                        FIPSR
-/etc/X11/                          NORMAL
-/etc/zlogin                        NORMAL
-/etc/zlogout                       NORMAL
-/etc/zprofile                      NORMAL
-/etc/zshrc                         NORMAL
-
-# ################ USR
-
-/usr                               NORMAL
-/usr/sbin/stunnel                  FIPSR
-
-# ################ VAR
-
-/var/log/faillog                   FIPSR
-/var/log/lastlog                   FIPSR
-/var/spool/at                      FIPSR
-/var/spool/cron/root               FIPSR
-
-# ################ OTHERS
-
-/boot                              NORMAL
-/bin                               NORMAL
-/lib                               NORMAL
-/lib64                             NORMAL
-/opt                               NORMAL
-/root                              NORMAL
+systemctl enable clevis-luks-askpass.path
 ```
+
+**6. finishing**
+
 ```
-aide --init
+mkinitcpio -P
 ```
-```
-mv /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz
-```
-```
-exit
-```
-```
-umount -R /mnt
-```
-```
-reboot
-```
+
 # 3. post instalation
 ```
 passwd -l root
 ```
+
 ### blackbird hyprland
 #### installation
 
@@ -1179,6 +857,7 @@ git clone https://github.com/blackbird-package/level10.git /tmp/config
 ```
 cp -fr /tmp/config/* /
 ```
+
 
 
 
