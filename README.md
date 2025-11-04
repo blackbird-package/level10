@@ -385,9 +385,16 @@ echo "tmpfs     					/tmp        		tmpfs   defaults,rw,nosuid,nodev,noexec,relat
 git clone https://github.com/blackbird-package /mnt/opt/config
 ```
 ```
-cp -fr /mnt/opt/config/
+cp -fr /mnt/opt/config/mnt /mnt
 ```
-
+jika menggunakan nbde
+```
+cp -fr /mnt/opt/config/udev /mnt
+```
+jika menggunakan systemd
+```
+cp -fr /mnt/opt/config/udev /mnt
+```
 
 
 ### chrooting
@@ -1812,6 +1819,7 @@ git clone https://github.com/blackbird-package/level10.git /tmp/config
 ```
 cp -fr /tmp/config/* /
 ```
+
 
 
 
