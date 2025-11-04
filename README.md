@@ -431,8 +431,8 @@ systemctl enable systemd-timesyncd.service
 ```
 locale-gen
 ```
-#### users
-- system user
+### users
+#### system user
 ```
 echo 'loki ALL=(ALL:ALL) ALL' >> /etc/sudoers
 ```
@@ -454,7 +454,7 @@ chown -R loki:loki /var/usr
 ```
 passwd loki
 ```
-- daemon user
+#### daemon user
 ```
 useradd -d /var/games -u 50 -g games games
 ```
@@ -474,7 +474,7 @@ nobody:x:65534:65534:Kernel Overflow User:/:/usr/bin/nologin
 games:x:50:50:Games User:/:/usr/bin/nologin
 ...
 ```
-- admin user
+#### admin user
 ```
 useradd -m nama_user
 ```
@@ -500,7 +500,7 @@ exit
 ```
 passwd -l root
 ```
-#### flatpak
+### flatpak
 ```
 mkdir -p /opt/flat
 ```
@@ -539,7 +539,8 @@ flatpak override --env=GTK_THEME=flow
 ```
 flatpak override --env=ICON_THEME=eggs
 ```
-#### clevis ( udev based system with nbde only )
+### nbde
+#### clevis
 ```
 su nama_user
 ```
@@ -557,6 +558,14 @@ clevis luks bind -d /dev/[nama physical disk proc] tang '{"url":"http://10.10.1.
 ```
 ```
 clevis luks bind -d /dev/[nama physical disk data] tang '{"url":"http://10.10.1.16:7500"}'
+```
+#### cmdline
+Ganti `(IP)` denga ip address yang diberikan untuk perangkat anda
+```
+echo "ip=(IP)::10.10.1.1:255.255.255.0::eth0:none nameserver=10.10.1.1 nameserver=1.1.1.1 nameserver=8.8.8.8 nameserver=1.0.0.1 nameserver=8.8.4.4 nameserver=9.9.9.9 nameserver=149.112.112.112 " > /etc/cmdline.d/05-nets.conf
+```
+```
+nvim /etc/cmdline.d/05-nets.conf
 ```
 #### hids
 ```
@@ -615,13 +624,6 @@ bootctl --path=/boot install
 ```
 echo "cryptdevice=UUID=$(blkid -s UUID -o value /dev/[proc physical partition name]):proc root=/dev/proc/root" > /etc/cmdline.d/01-boot.conf
 ```
-Ganti `(IP)` denga ip address yang diberikan untuk perangkat anda
-```
-echo "ip=(IP)::10.10.1.1:255.255.255.0::eth0:none nameserver=10.10.1.1 nameserver=1.1.1.1 nameserver=8.8.8.8 nameserver=1.0.0.1 nameserver=8.8.4.4 nameserver=9.9.9.9 nameserver=149.112.112.112 " > /etc/cmdline.d/05-nets.conf
-```
-```
-nvim /etc/cmdline.d/05-nets.conf
-```
 - systemd
 ```
 echo "rd.luks.uuid=$(blkid -s UUID -o value /dev/[proc physical partition name])root=/dev/proc/root" > /etc/cmdline.d/01-boot.conf
@@ -673,4 +675,5 @@ umount -R /mnt
 ```
 reboot
 ```
+
 
