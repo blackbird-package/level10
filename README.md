@@ -389,7 +389,7 @@ cp -fr /mnt/opt/config/udev /mnt
 ```
 - systemd
 ```
-cp -fr /mnt/opt/config/syd /mnt
+cp -fr /mnt/opt/config/sysd /mnt
 ```
 
 ### network
@@ -706,6 +706,7 @@ umount -R /mnt
 ```
 reboot
 ```
+
 
 
 
