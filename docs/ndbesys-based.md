@@ -560,7 +560,6 @@ echo "ip=(IP)::10.10.1.1:255.255.255.0::eth0:none nameserver=10.10.1.1 nameserve
 ```
 nvim /etc/cmdline.d/05-nets.conf
 ```
-
 ### hids
 ```
 cd /tmp
