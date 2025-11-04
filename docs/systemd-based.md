@@ -602,7 +602,6 @@ systemctl enable prometheus-node-exporter.service &&
 systemctl enable irqbalance &&
 systemctl enable tuned &&
 systemctl enable tuned-ppd.service &&
-systemctl enable nginx &&
 systemctl enable systemd-networkd &&
 systemctl enable systemd-resolved &&
 systemctl enable aide.timer &&
