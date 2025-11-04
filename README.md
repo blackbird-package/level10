@@ -212,7 +212,7 @@ mkdir -p /mnt/srv /mnt/srv/http
 mount -o rw,nodev,noexec,nosuid,relatime /dev/proc/docs /mnt/srv/http
 ```
 
-### volume boot
+#### volume boot
 
 **technical procedure**
 
@@ -1797,6 +1797,7 @@ git clone https://github.com/blackbird-package/level10.git /tmp/config
 ```
 cp -fr /tmp/config/* /
 ```
+
 
 
 
