@@ -297,7 +297,7 @@ pacstrap /mnt uwsm hyprland hyprpicker hyprshot hypridle hyprlock hyprpolkitagen
 
 **6. panel**
 ```
-pacstrap /mnt mako waybar wofi mpd mpc --noconfirm
+pacstrap /mnt mako waybar wofi --noconfirm
 ```
 
 **7. file system**
@@ -683,6 +683,7 @@ umount -R /mnt
 ```
 reboot
 ```
+
 
 
 
