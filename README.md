@@ -353,7 +353,7 @@ pacstrap /mnt amd-ucode --noconfirm
 pacstrap /mnt tang clevis mkinitcpio-nfs-utils luksmeta ethtool
 ```
 
-## preconfing
+## 3. preconfing
 ### fstab
 ```
 genfstab -U /mnt > /mnt/etc/fstab
@@ -367,7 +367,7 @@ echo "# /dev/mapper/proc-temp" >> /mnt/etc/fstab
 ```
 echo "tmpfs     					/tmp        		tmpfs   defaults,rw,nosuid,nodev,noexec,relatime,size=512M" >> /mnt/etc/fstab
 ```
-### config
+### system
 ```
 git clone https://github.com/blackbird-package /mnt/opt/config
 ```
@@ -383,7 +383,7 @@ untuk system berbasis systemd
 cp -fr /mnt/opt/config/syd /mnt
 ```
 
-**3. network**
+### network
  - ethernet
 ```
 cp /etc/system/network/* /mnt/etc/systemd/network/
@@ -399,12 +399,12 @@ mkdir -p /mnt/var/lib/iwd/
 cp /var/lib/iwd/* /mnt/var/lib/iwd/
 ```
 
-**3.chroot**
+### chroot
 ```
 arch-chroot /mnt
 ```
 
-## 3. postconfig
+## 4. postconfig
 
 ### based
 #### hostname 
@@ -681,6 +681,7 @@ umount -R /mnt
 ```
 reboot
 ```
+
 
 
 
