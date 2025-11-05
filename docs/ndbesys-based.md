@@ -454,9 +454,6 @@ locale-gen
 ### users
 #### system 
 ```
-echo 'loki ALL=(ALL:ALL) ALL' >> /etc/sudoers
-```
-```
 useradd -d /var/usr loki
 ```
 ```
