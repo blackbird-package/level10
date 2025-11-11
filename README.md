@@ -658,7 +658,9 @@ reboot
 ```
 ## 9. firstboot
 ```
-flatpak install --system -y --noninteractive flathub org.mozilla.firefox com.google.Chrome com.visualstudio.code 
+flatpak install --system -y --noninteractive flathub org.mozilla.firefox \
+    com.google.Chrome \
+    com.visualstudio.code 
     de.wagnermartin.Plattenalbum \
     md.obsidian.Obsidian \
     org.gnome.Evolution \
@@ -683,6 +685,7 @@ flatpak override --env=GTK_THEME=flow
 ```
 flatpak override --env=ICON_THEME=eggs
 ```
+
 
 
 
