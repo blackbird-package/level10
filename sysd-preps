@@ -1,0 +1,6 @@
+#!/bin/bash
+
+## based
+sleep 3 && clear &&
+echo "level 16" &&
+pacstrap /mnt base

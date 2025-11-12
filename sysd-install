@@ -1,0 +1,227 @@
+#!/bin/bash
+
+
+## variable
+source /post/config
+tokens='$6$xyz$TcdM.glK/cahP/.4LRfB6cLr9mczMfZazDDq4Bou89AbP36r/UXNQ6TIxuCpM3hZ9V5QKTSo6954a.1DM3k7E0'
+mywlan=""
+ucodes=""
+
+## validation
+if [[ -z $PHYSICAL_BOOT ]];then
+    echo "Error disk boot is empty" &&
+    exit
+fi
+
+if [[ -z $PHYSICAL_PROC ]];then
+    echo "Error disk proc is empty" &&
+    exit
+fi
+
+if [[ -z $PHYSICAL_PROC ]];then
+    echo "Error disk data is empty" &&
+    exit
+fi
+
+if [[ -z $DESK_HOSTNAME ]];then
+    echo "Error hostname data is empty" &&
+    exit
+fi
+
+if [[ -z $IP_ADDRESSING ]];then
+    echo "Error ip address data is empty" &&
+    exit
+fi
+
+
+if [[ -z $DESK_USERNAME ]];then
+    echo "Error username data is empty" &&
+    exit
+fiq
+q
+
+if [[ ! -z $( ip a | grep "wl*" )  ]];then
+    $mywlan="iwd impala wireless-regdb"
+    mkdir -p /mnt/var/lib/iwd/ &&
+    cp /var/lib/iwd/* /mnt/var/lib/iwd/
+fi
+
+## microcode
+sleep 3 && clear &&
+echo "level 31" &&
+if [[ ! -z $( cat /proc/cpuinfo | grep "Intel" )  ]];then
+    $ucodes="intel-ucode"
+fi
+if [[ ! -z $( cat /proc/cpuinfo | grep "AMD" )  ]];then
+   $ucodes="amd-ucode"
+fi
+
+
+## package
+sleep 3 && clear &&
+echo "level 16" &&
+pacman -S linux-zen linux-firmware-intel mkinitcpio lvm2 btrfs-progs scx-scheds $ucodes bubblewrap \
+    sudo debugedit fakeroot pkgconf bison gcc pcre flex wget make gcc curl less git systemd-ukify \
+    pipewire pipewire-pulse pipewire-jack wireplumber pavucontrol sof-firmware mpd mpc \
+    brightnessctl xorg-xwayland uwsm libnewt \
+    ttf-jetbrains-mono-nerd ttf-droid \
+    hyprland hyprpicker hyprshot hypridle hyprlock hyprpolkitagent xdg-desktop-portal-hyprland qt5-wayland qt6-wayland wl-clipboard cliphist mailcap \
+    sddm mako waybar weston \
+    nautilus \
+    kitty kitty-terminfo neovim \
+    gnome-keyring libsecret libpam-google-authenticator libpwquality cracklib polkit apparmor qrencode \
+    btop \
+    tuned tuned-ppd \
+    rsync grsync \
+    go hugo nginx \
+    openssh iptables-nft firewalld $mywlan --noconfirm  &&
+
+
+
+
+
+
+
+
+
+## application
+sleep 3 && clear &&
+echo "level 7"&&
+mkdir -p /opt/flat &&
+if [[ -e /var/lib/flatpak/ ]];  then
+    cp -fr /var/lib/flatpak/* /opt/flat/ &&
+    rm -fr /var/lib/flatpak/
+fi
+ln -sf /opt/flat /var/lib/flatpak &&
+pacman -S flatpak gnome-software
+
+
+
+## hostname
+sleep 3 && clear &&
+echo "level 1" &&
+if [[ -z /usr/local/rbin ]];then
+    mkdir /usr/local/rbin
+fi
+echo $DESK_HOSTNAME > /etc/hostname
+
+
+
+## timectl
+sleep 3 && clear &&
+echo "level 2"
+ln -sf /usr/share/zoneinfo/Asia/Jakarta /etc/localtime &&
+hwclock --systohc &&
+timedatectl set-ntp true &&
+timedatectl set-timezone Asia/Jakarta &&
+timedatectl status &&
+timedatectl show-timesync --all &&
+
+
+
+## locale
+sleep 3 && clear &&
+echo "level 3"
+locale-gen  &&
+
+
+## administrator
+sleep 3 && clear &&
+echo "level 4" &&
+if [ -e /etc/skel/.bashrc ];then
+    rm /etc/skel/.bash*
+fi
+if [[ -z $( grep temp /etc/passwd ) ]];then
+    useradd -d /var/net -p $shadow net &&
+    chown -R net:net /var/net &&
+    chmod 700 /var/net/.ssh/ &&
+    chmod 600 /var/net/.ssh/authorized_keys &&
+    sudo chattr +i /var/net/.ssh/authorized_keys &&
+    usermod -aG wheel net
+fi
+
+
+
+## virtualmin
+sleep 3 && clear &&
+echo "level 5" &&
+echo "create package administrator user"
+if [[ -z $( grep games /etc/passwd ) ]];then
+    useradd -d /var/games -u 50 -g games games &&
+    chown -R games:games /var/games &&
+    passwd -l games
+fi
+
+
+
+## useradd
+sleep 3 && clear &&
+echo "level 6" &&
+touch /etc/sudoers.d/none &&
+
+if [[ -z $( grep $DESK_USERNAME /etc/passwd ) ]];then
+    useradd -m $DESK_USERNAME
+fi
+echo "$DESK_USERNAME:$USER_PASSWORD" | chpasswd --crypt-method SHA512 
+echo "$DESK_USERNAME ALL=(ALL:ALL) ALL" > /etc/sudoers.d/none &&
+
+
+## aide hids
+sleep 3 && clear &&
+echo "level 8" &&
+pkg-config --libs --cflags glib-2.0 &&
+cd /tmp &&
+wget https://github.com/aide/aide/releases/download/v0.19.2/aide-0.19.2.tar.gz  &&
+sudo tar -xf aide-0.19.2.tar.gz &&
+cd aide-0.19.2 &&
+sudo ./configure --with-zlib --with-posix-acl --with-xattr --with-curl --with-locale --with-syslog-ident --with-config-file=/etc/aide.conf &&
+sudo make && make install &&
+mkdir -p /var/lib/aide &&
+
+
+## params conf
+sleep 3 && clear &&
+echo "level 9" &&
+echo "register encrypted volume to kernel paramater" &&
+echo "rd.luks.uuid=$(blkid -s UUID -o value $PHYSICAL_PROC) root=/dev/proc/root" > /etc/cmdline.d/01-boot.conf &&
+echo "register encrypted volume to crypttab" &&
+echo "data UUID=$(blkid -s UUID -o value $PHYSICAL_DATA) none" >> /etc/crypttab &&
+
+
+## boot config
+sleep 3 && clear &&
+echo "level 10" &&
+rm -fr /etc/mkinitcpio.conf.d &&
+rm /boot/initramfs-linux-zen* &&
+mkdir -p /boot/efi /boot/efi/linux /boot/efi/systemd /boot/efi/rescue /boot/efi/boot /boot/kernel &&
+mv /boot/*-ucode.img /boot/vmlinuz-linux-zen /boot/kernel &&
+bootctl --path=/boot install &&
+mkinitcpio -P &&
+
+
+## service activation
+sleep 3 && clear &&
+echo "level 11" &&
+systemctl enable systemd-timesyncd.service &&
+systemctl enable apparmor.service &&
+systemctl enable sshd &&
+systemctl enable update.timer &&
+systemctl enable upower.service &&
+systemctl enable seatd &&
+systemctl enable nginx &&
+systemctl enable systemd-networkd.socket &&
+systemctl enable systemd-resolved &&
+systemctl enable aide.timer &&
+systemctl enable sddm &&
+systemctl enable firewalld &&
+
+
+## service deactivation
+systemctl disable systemd-networkd-wait-online.service &&
+
+
+## finishing
+sleep 3 && clear &&
+echo "level 12" &&
+aide --init &&
+mv /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz
