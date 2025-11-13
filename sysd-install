@@ -41,8 +41,6 @@ fi
 
 if [[ ! -z $( ip a | grep "wl*" )  ]];then
     mywlan="iwd impala wireless-regdb"
-    mkdir -p /mnt/var/lib/iwd/ &&
-    cp /var/lib/iwd/* /mnt/var/lib/iwd/
 fi
 
 ## microcode
