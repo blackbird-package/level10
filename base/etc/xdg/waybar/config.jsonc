@@ -25,20 +25,19 @@
     ],
     "modules-right": [
         // "idle_inhibitor",
-        // "pulseaudio",
         "cpu",
         "memory",
         "temperature",
-        "backlight",
+        // "backlight",
         // "keyboard-state",
         // "sway/language",
         "battery",
         //"battery#bat2",
         "tray",
+        "pulseaudio",
         "power-profiles-daemon",
         "network",
         //"custom/audio",
-        "pulseaudio",
         "custom/locks",
         "custom/power"
     ],
@@ -182,11 +181,11 @@
     },
     "pulseaudio": {
         // "scroll-step": 1, // %, can be a float
-        "format": "{volume}% {icon}   {format_source}",
+        "format": "{volume}%  {icon}   {format_source}",
         "format-bluetooth": "{volume}% {icon} {format_source}",
         "format-bluetooth-muted": " {icon} {format_source}",
         "format-muted": " {format_source}",
-        "format-source": " {volume}% ",
+        "format-source": " ",
         "format-source-muted": "",
         "format-icons": {
             "headphone": "",
@@ -286,7 +285,7 @@
         "format" : "⏻ ",
 		"tooltip": false,
 		"menu": "on-click",
-		"menu-file": "/etc/xdg/waybar/power-menu.xml", // Menu file in resources folder
+		"menu-file": "$HOME/.config/waybar/power-menu.xml", // Menu file in resources folder
 		"menu-actions": {
             		"logout": "uwsm stop",
 			"shutdown": "poweroff",
