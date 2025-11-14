@@ -41,8 +41,6 @@ sleep 3 && clear &&
 echo "level 1" &&
 if [[ ! -z $( ip a | grep "wl*" )  ]];then
     mywlan="iwd impala wireless-regdb"
-    mkdir -p /mnt/var/lib/iwd/ &&
-    cp /var/lib/iwd/* /mnt/var/lib/iwd/
 fi
 
 ## microcode
@@ -63,7 +61,7 @@ pacman -Sy linux-zen linux-firmware-intel mkinitcpio lvm2 btrfs-progs scx-scheds
     pipewire pipewire-pulse pipewire-jack wireplumber pavucontrol sof-firmware mpd mpc \
     brightnessctl xorg-xwayland uwsm libnewt \
     ttf-jetbrains-mono-nerd ttf-droid \
-    hyprland hyprpicker hyprshot hypridle hyprlock hyprpolkitagent xdg-desktop-portal-hyprland qt5-wayland qt6-wayland wl-clipboard cliphist mailcap \
+    hyprland hyprpicker wofi hyprshot hypridle hyprlock hyprpolkitagent xdg-desktop-portal-hyprland qt5-wayland qt6-wayland wl-clipboard cliphist mailcap \
     sddm mako waybar weston \
     nautilus \
     kitty kitty-terminfo neovim \
